@@ -28,7 +28,7 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="guru_id" class="col-sm-3 col-form-label">Pembina</label>
+                  <label for="guru_id" class="col-sm-3 col-form-label">Koordinator</label>
                   <div class="col-sm-9">
                     <select name="guru_id" id="create-guru_id" class="form-control create-field" data-width="100%">
                       <option selected disabled hidden>-- Pilih --</option>

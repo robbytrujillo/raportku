@@ -38,7 +38,7 @@
                   <tr class="bg-dark text-white header-table {{ Auth::user()->dark_mode == '1' ? 'bg-light' : '' }}">
                     <th scope="col">No.</th>
                     <th scope="col">Nama Ekstrakurikuler</th>
-                    <th scope="col" class="mw-150">Pembina</th>
+                    <th scope="col" class="mw-150">Koordinator</th>
                     <th scope="col">Jumlah Anggota</th>
                     <th scope="col" class="mw-150">Aksi</th>
                   </tr>
