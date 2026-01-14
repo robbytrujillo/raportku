@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Robby Ilhamkusuma - robbyilham.com">
-    <title>RAPORTKU SMA IHBS | {{ $sekolah->name }}</title>
+    <title>RAPORTKU | {{ $sekolah->name }}</title>
     {{-- <link rel="stylesheet" href="/css/bootstrap.min.css"> --}}
     <link rel="shortcut icon" href="/img/{{ $sekolah->logo }}" type="image/x-icon">
     <meta property="og:title" content="RAPORTKU SMA IHBS | {{ $sekolah->name }}" />
