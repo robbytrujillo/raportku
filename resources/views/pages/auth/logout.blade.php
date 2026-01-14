@@ -8,7 +8,7 @@
               </button>
           </div>
           <div class="modal-body">
-              <p>Apakah anda yakin akan keluar dari <span id="logoutTitle"> RAPORTKU SMA IHBS </span>?</p>
+              <p>Apakah anda yakin akan keluar dari <span id="logoutTitle">RAPORTKU SMA IHBS </span>?</p>
           </div>
           <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
