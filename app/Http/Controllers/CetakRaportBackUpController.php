@@ -166,23 +166,4 @@ class CetakRaportController extends Controller
         'catatanwalas' => CatatanWalas::where('siswa_id', $siswa->id)->get(),
       ])->setPaper($paper, 'Potrait')->stream('RAPOR HASIL BELAJAR - ' . $siswa->name . ' ' . $siswa->kelas->name . ' ' . $siswa->nis . '.pdf');
     }
-
-    public function raporBulanan($siswaId, $bulan, $kertas)
-    {
-        $siswa = Siswa::findOrFail($siswaId);
-
-        $nilai = NilaiAkhir::where('siswa_id', $siswaId)
-            ->where('bulan', $bulan)
-            ->where('tahun', now()->year)
-            ->with(['pembelajaran.mapel'])
-            ->get();
-
-        return PDF::loadView('pages.cetakrapor.bulanan.print', [
-            'siswa' => $siswa,
-            'nilai' => $nilai,
-            'bulan' => $bulan,
-            'sekolah' => Sekolah::first(),
-        ])->setPaper($kertas, 'Potrait')
-          ->stream('RAPOR BULANAN - '.$siswa->name.'.pdf');
-    }
 }

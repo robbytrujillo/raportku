@@ -58,6 +58,23 @@
                     </select>
                   </td>
                 </tr>
+                <tr>
+                  <td class="fw-bold">Bulan</td>
+                  <td class="px-2">:</td>
+                  <td>
+                    <select id="bulan-select" class="form-control">
+                      <option value="">-- Pilih Bulan --</option>
+                      @foreach ([
+                        1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',
+                        5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',
+                        9=>'September',10=>'Oktober',11=>'November',12=>'Desember'
+                      ] as $key => $bulan)
+                        <option value="{{ $key }}">{{ $bulan }}</option>
+                      @endforeach
+                    </select>
+                  </td>
+                </tr>
+
               </table>
             </div>
           </div>
@@ -107,6 +124,21 @@
         {data: 'jk', name: 'jk'},
         {data: 'aksi', name: 'aksi'},
       ],
+    });
+
+    // rapor bulanan
+    $('body').on('click', '.bulanan-button', function(){
+      let bulan = $('#bulan-select').val();
+
+      if(!bulan){
+        alert('Silakan pilih bulan terlebih dahulu!');
+        return;
+      }
+
+      window.open(
+        '/cetakrapor/bulanan/' + $(this).data('id') + '/' + bulan + '/' + $('#paper-select').val(),
+        '_blank'
+      );
     });
 
     // kelengkapan

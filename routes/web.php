@@ -1,39 +1,40 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AnggotaEkskulController;
-use App\Http\Controllers\AnggotaKelompokController;
-use App\Http\Controllers\CapaianAkhirController;
-use App\Http\Controllers\CapaianProjekController;
-use App\Http\Controllers\CatatanWalasController;
-use App\Http\Controllers\CetakRaportController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DimensiController;
-use App\Http\Controllers\EkskulController;
-use App\Http\Controllers\ElemenController;
-use App\Http\Controllers\GuruController;
-use App\Http\Controllers\Helper\HelperController;
-use App\Http\Controllers\KelasController;
-use App\Http\Controllers\KelompokController;
-use App\Http\Controllers\KelompokMapelController;
-use App\Http\Controllers\KetidakhadiranController;
-use App\Http\Controllers\LegerNilaiController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\MapelController;
-use App\Http\Controllers\NilaiAkhirController;
-use App\Http\Controllers\PembelajaranController;
-use App\Http\Controllers\ProfilController;
-use App\Http\Controllers\ProjekController;
-use App\Http\Controllers\ProjekPilihanKelompokController;
-use App\Http\Controllers\SekolahController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\SubElemenController;
-use App\Http\Controllers\TapelController;
-use App\Http\Controllers\TujuanPembelajaranController;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
+use App\Http\Controllers\GuruController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\KelasController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MapelController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\TapelController;
+use App\Http\Controllers\EkskulController;
+use App\Http\Controllers\ElemenController;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\ProjekController;
+use App\Http\Controllers\DimensiController;
+use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\KelompokController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SubElemenController;
+use App\Http\Controllers\LegerNilaiController;
+use App\Http\Controllers\NilaiAkhirController;
+use App\Http\Controllers\CetakRaportController;
+use App\Http\Controllers\CapaianAkhirController;
+use App\Http\Controllers\CatatanWalasController;
+use App\Http\Controllers\NilaiBulananController;
+use App\Http\Controllers\PembelajaranController;
+use App\Http\Controllers\AnggotaEkskulController;
+use App\Http\Controllers\CapaianProjekController;
+use App\Http\Controllers\Helper\HelperController;
+use App\Http\Controllers\KelompokMapelController;
+use App\Http\Controllers\KetidakhadiranController;
+use App\Http\Controllers\AnggotaKelompokController;
+use App\Http\Controllers\TujuanPembelajaranController;
+use App\Http\Controllers\ProjekPilihanKelompokController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,11 +91,16 @@ Route::middleware('can:pembinaekskul')->group(function(){
   Route::get('/anggotaekskul/{ekskul}/getdelete', [AnggotaEkskulController::class, 'delete'])->name('anggotaekskul.getdelete');
   Route::delete('/anggotaekskul/{anggotaekskul}/delete', [AnggotaEkskulController::class, 'hapus'])->name('anggotaekskul.delete');
   Route::put('/anggotaekskul/{ekskul}/update', [AnggotaEkskulController::class, 'update'])->name('anggotaekskul.update');
-});
+
+  Route::post('/nilaibulanan/store', [NilaiBulananController::class, 'store'])
+    ->middleware('can:gurumapel');
+
+  });
 
   Route::delete('/tujuanpembelajaran/delete/{tujuanpembelajaran}', [TujuanPembelajaranController::class, 'delete']);
   Route::resource('/tujuanpembelajaran', TujuanPembelajaranController::class)->middleware('can:gurumapel');
   Route::resource('/nilaiakhir', NilaiAkhirController::class)->middleware('can:gurumapel');
+  Route::resource('/nilaibulanan', NilaiBulananController::class)->middleware('can:gurumapel');
   Route::put('/deskripsicapaian/{pembelajaran}/update', [NilaiAkhirController::class, 'updateDeskripsi'])->name('deskripsicapaian.update');
 
   Route::middleware('can:admin')->group(function(){
@@ -132,5 +138,7 @@ Route::middleware('can:pembinaekskul')->group(function(){
   Route::get('/cetakrapor/kelengkapan/{siswa}/{paper}', [CetakRaportController::class, 'kelengkapan'])->name('cetakraport.kelengkapan');
   Route::get('/cetakrapor/semester/{siswa}/{paper}', [CetakRaportController::class, 'semester'])->name('cetakraport.semester');
   Route::get('/cetakrapor/p5/{siswa}/{paper}', [CetakRaportController::class, 'p5'])->name('cetakraport.p5');
+
+  Route::get('/cetakrapor/bulanan/{siswa}/{bulan}/{paper}',[CetakRaportController::class, 'raporBulanan'])->name('cetakraport.bulanan');
 
 });

@@ -46,6 +46,12 @@
       loadAMoment();
       window.location.href = '/nilaiakhir/' +$(this).data('id');
     });
+    
+    // SHOW NILAI BULANAN
+    $('body').on('click', '.nilai-bulanan-button', function(){
+      loadAMoment();
+      window.location.href = '/nilaibulanan/' +$(this).data('id');
+    });
 
     // CREATE
     $('body').on('click', '.create-button', function(e) {

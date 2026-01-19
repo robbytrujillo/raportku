@@ -30,6 +30,12 @@ class Pembelajaran extends Model
       return $this->hasMany(NilaiAkhir::class);
     }
 
+    public function nilaiBulanan()
+    {
+        return $this->hasMany(NilaiBulanan::class);
+    }
+
+
     // HELPER
     public function guru_pengampu(){
       return ($this->guru) ? $this->guru->name : '-';

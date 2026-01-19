@@ -42,6 +42,11 @@ class Siswa extends Model
       return $this->hasOne(AnggotaKelompok::class);
     }
 
+    public function nilaiBulanan()
+    {
+        return $this->hasMany(NilaiBulanan::class);
+    }
+
     public function nilaiProjek(){
       return $this->hasMany(NilaiProjek::class);
     }
