@@ -47,7 +47,7 @@
           <li class="nav-header mt-2 fw-bold">SAYA</li>
 
           <li class="nav-item mb-3">
-              <a href="/profil" class="nav-link {{ Request::is('profil*') ? 'active' : '' }}">
+              <a href="/profil" class="rounded-pill nav-link {{ Request::is('profil*') ? 'active' : '' }}">
                   <i class="nav-icon fas fa-user"></i>
                   <p>Profil</p>
               </a>

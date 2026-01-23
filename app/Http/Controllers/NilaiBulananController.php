@@ -2,161 +2,401 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guru;
+use App\Models\Kelas;
+use App\Models\Mapel;
 use App\Models\NilaiBulanan;
 use App\Models\Pembelajaran;
+use App\Models\PencapaianTp;
 use App\Models\Siswa;
+use App\Models\TujuanPembelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
+use Yajra\DataTables\Facades\DataTables;
+
+use function Symfony\Component\String\b;
 
 class NilaiBulananController extends Controller
 {
     /**
-     * Daftar pembelajaran (menu Input Nilai Bulanan)
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        $pembelajaran = Pembelajaran::latest();
+      $data = Pembelajaran::latest();
 
-        if ($request->mapel_id) {
-            $pembelajaran->where('mapel_id', $request->mapel_id);
-        }
+      if ($request->ajax()) {
 
-        if ($request->kelas_id) {
-            $pembelajaran->where('kelas_id', $request->kelas_id);
-        }
+        if ($request->mapel_id) $data->where('mapel_id', $request->mapel_id);
+        if ($request->kelas_id) $data->where('kelas_id', $request->kelas_id);
+        if ($request->guru_id) $data->where('guru_id', $request->guru_id);
 
-        if ($request->guru_id) {
-            $pembelajaran->where('guru_id', $request->guru_id);
-        }
+        return DataTables::of($data->with('kelas','guru','mapel'))
+          ->addIndexColumn()
+          ->editColumn('kelas.name', fn($data) => $data->kelas->name)
+          ->editColumn('mapel.name', fn($data) => $data->mapel->name)
+          ->editColumn('guru.name', fn($data) => $data->guru_pengampu())
+          ->addColumn('aksi', function($data){
+              return view('pages.nilaibulanan._aksi')->with('data', $data);})
+          ->make(true);
+      }
 
-        return view('pages.nilaibulanan.index', [
-            'pembelajaran' => $pembelajaran->get()
-        ]);
+      return view('pages.nilaibulanan.index',[
+        'pembelajaran' => $data,
+        'kelas' => Kelas::get(),
+        'mapel' => Mapel::get(),
+        'guru' => Guru::get(),
+      ]);
     }
 
     /**
-     * Form input nilai bulanan
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
      */
-    public function show(Pembelajaran $pembelajaran, Request $request)
+    public function create()
     {
-        $user = Auth::user();
-
-        // dd([
-        //     'user_role' => Auth::user()->role,
-        //     'is_guru_mapel' => Auth::user()->isGuruMapel(),
-        //     'guru_id_login' => Auth::user()->guru->id ?? null,
-        //     'guru_id_pembelajaran' => $pembelajaran->guru_id,
-        // ]);
-
-
-        // if (!$user->isGuruMapel() || $user->guru->id !== $pembelajaran->guru_id) {
-        //     abort(403);
-        // }
-
-        // if (!$user->isGuruMapel()) {
-        //     abort(403);
-        // }
-
-        // if ($pembelajaran->guru_id && $user->guru->id != $pembelajaran->guru_id) {
-        //     abort(403);
-        // }
-
-        if (!$user->isGuruMapel()) {
-            abort(403);
-        }
-
-        // $bulan    = $request->bulan;
-        // $semester = $request->semester;
-        // $tahun    = $request->tahun;
-
-        $bulan    = $request->bulan ?? now()->month;
-        $semester = $request->semester ?? 1;
-        $tahun    = $request->tahun ?? now()->year;
-
-        $siswa = Siswa::where('kelas_id', $pembelajaran->kelas_id)
-            ->orderBy('name')
-            ->get();
-
-        $nilai = NilaiBulanan::where([
-                'pembelajaran_id' => $pembelajaran->id,
-                'bulan'           => $bulan,
-                'semester'        => $semester,
-                'tahun'           => $tahun,
-            ])
-            ->get()
-            ->keyBy('siswa_id');
-
-        return view('pages.nilaibulanan.show', compact(
-            'pembelajaran',
-            'siswa',
-            'nilai',
-            'bulan',
-            'semester',
-            'tahun'
-        ));
+        //
     }
 
     /**
-     * Simpan / update nilai bulanan
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Pembelajaran $pembelajaran)
+    public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'bulan'       => 'required|integer|between:1,12',
-            'semester'    => 'required|integer|in:1,2',
-            'tahun'       => 'required|integer',
-            'siswa_id.*'  => 'required|exists:siswas,id',
-        ]);
+        //
+    }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'failed' => 'Validasi gagal',
-                'errors' => $validator->errors()
-            ]);
-        }
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Pembelajaran $nilaibulanan, Request $request)
+    {
+      $pembelajaran = $nilaibulanan;
 
+      $user = Auth::user();
+      if (!($user->isGuruMapel() && ($user->guru->id == $pembelajaran->guru_id ))) {
+        abort(403);
+      }
+      $data = Siswa::whereHas('user', fn($q) => $q->where('is_aktif', true))->where('kelas_id', $pembelajaran->kelas_id)->orderBy('name', 'asc');
+      $nilai = NilaiBulanan::where('pembelajaran_id', $pembelajaran->id)->get();
+      $tp = TujuanPembelajaran::where('pembelajaran_id', $pembelajaran->id)->get();
+
+      if ($request->ajax()) {
+
+        return DataTables::of($data->with('pencapaianTp','nilaiBulanan'))
+          ->addIndexColumn()
+          ->editColumn('nilai', function($data) use($pembelajaran, $nilai){
+              $nilaiSiswa = $nilai->firstWhere('siswa_id', $data->id)['nilai'] ?? null;
+              return view('pages.nilaibulanan.input.nilai')->with(['data' => $data, 'nilaiSiswa' => $nilaiSiswa]);})
+          ->editColumn('pencapaian.optimal', function($data) use($tp) {
+              return view('pages.nilaibulanan.input.capaian_optimal')->with(['data' => $data, 'tp' => $tp]);})
+          ->editColumn('pencapaian.kurang', function($data) use($tp) {
+              return view('pages.nilaibulanan.input.capaian_kurang')->with(['data' => $data, 'tp' => $tp]);})
+          ->make(true);
+      }
+
+      return view('pages.nilaibulanan.show',[
+        'siswa' => $data,
+        'pembelajaran' => $pembelajaran,
+        'tp' => $tp
+      ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Pembelajaran $nilaibulanan, Request $request)
+    {
+      $pembelajaran = $nilaibulanan;
+      $user = Auth::user();
+      if (!($user->isGuruMapel() && ($user->guru->id == $pembelajaran->guru_id ))) {
+        abort(403);
+      }
+      $data = Siswa::whereHas('user', fn($q) => $q->where('is_aktif', true))->where('kelas_id', $pembelajaran->kelas_id)->orderBy('name', 'asc');
+      $nilai = NilaiBulanan::where('pembelajaran_id', $pembelajaran->id)->get();
+      if ($request->ajax()) {
+
+        return DataTables::of($data->with('nilaiBulanan'))
+        ->addIndexColumn()
+          ->editColumn('nilai', function($data) use($nilai){
+            $nilaiSiswa = $nilai->firstWhere('siswa_id', $data->id)['nilai'] ?? null;
+              return view('pages.nilaibulanan.input.nilai')->with(['data' => $data, 'nilaiSiswa' => $nilaiSiswa]);})
+          ->editColumn('deskripsi.optimal', function($data) use($nilai) {
+              return view('pages.nilaibulanan.input.deskripsi_optimal')->with(['data' => $data, 'nilai' => $nilai]);})
+          ->editColumn('deskripsi.kurang', function($data) use($nilai) {
+              return view('pages.nilaibulanan.input.deskripsi_kurang')->with(['data' => $data, 'nilai' => $nilai]);})
+          ->make(true);
+      }
+
+      return view('pages.nilaibulanan.deskripsicapaian',[
+        'siswa' => $data,
+        'pembelajaran' => $pembelajaran,
+        'nilai' => $nilai
+      ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Pembelajaran $nilaiakhir)
+    // OLD
+    // {
+    //     $pembelajaran = $nilaiakhir;
+    //     $validasi = Validator::make($request->all(),[
+    //       'siswa_id.*' => 'required|exists:siswas,id',
+    //     ]);
+
+    //     if ($validasi->fails()) {
+    //       return back()->withFailed('gagal!');
+    //     }
+
+    //     $pluckTp = TujuanPembelajaran::where('pembelajaran_id', $pembelajaran->id)->pluck('id');
+
+    //     foreach($request->siswa_id as $i => $siswaId){
+    //       PencapaianTp::where('siswa_id', $siswaId)->whereIn('tujuan_pembelajaran_id', $pluckTp)->delete();
+
+    //       $capaianKurang = "kurang-" . $siswaId;
+    //       $capaianOptimal = "optimal-" . $siswaId;
+    //       $reqNilai = "nilai-" . $siswaId;
+
+    //       $deskripsiCapaianTinggi = '';
+    //       $deskripsiCapaianRendah = '';
+
+    //       if ($request->has($capaianKurang)) {
+    //         foreach ($request->$capaianKurang as $a => $kurangValue) {
+    //           $lastLoop = count($request->$capaianKurang);
+    //           $lastChar = (($a + 1) == $lastLoop) ? '.' : ', ';
+
+    //           PencapaianTp::create([
+    //             'siswa_id' => $siswaId,
+    //             'tujuan_pembelajaran_id' => $kurangValue,
+    //             'status_capaian' => 'kurang',
+    //           ]);
+    //           $deskripsiCapaianRendah .= TujuanPembelajaran::find($kurangValue)->keterangan . $lastChar;
+    //         }
+
+    //       }
+
+    //       if ($request->has($capaianOptimal)) {
+    //         foreach ($request->$capaianOptimal as $b => $optimalValue) {
+    //         $lastLoop = count($request->$capaianOptimal);
+    //         $lastChar = (($b + 1) == $lastLoop) ? '.' : ', ';
+
+    //         PencapaianTp::create([
+    //           'siswa_id' => $siswaId,
+    //           'tujuan_pembelajaran_id' => $optimalValue,
+    //           'status_capaian' => 'optimal',
+    //         ]);
+    //         $deskripsiCapaianTinggi .= TujuanPembelajaran::find($optimalValue)->keterangan . $lastChar;
+    //         }
+    //       }
+
+    //       NilaiAkhir::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
+
+    //       if (filled($request->$reqNilai)) {
+    //         NilaiAkhir::create([
+    //           'siswa_id' => $siswaId,
+    //           'pembelajaran_id' => $pembelajaran->id,
+    //           'nilai' => $request->$reqNilai ?? null,
+    //           'deskripsi_capaian_tinggi' => $request->has($capaianOptimal) ? 'Mencapai Kompetensi dengan sangat baik dalam hal ' . $deskripsiCapaianTinggi : null,
+    //           'deskripsi_capaian_rendah' => $request->has($capaianKurang) ? 'Perlu peningkatan dalam hal ' . $deskripsiCapaianRendah : null,
+    //         ]);
+    //       }
+
+    //     }
+
+    //     return back()->withSuccess('berhasil!');
+
+    // }
+
+    // NEW
+    // {
+    //   $pembelajaran = $nilaiakhir;
+    //   $validasi = Validator::make($request->all(), [
+    //       'siswa_id.*' => 'required|exists:siswas,id',
+    //   ]);
+
+    //   if ($validasi->fails()) {
+    //       return back()->withFailed('gagal!');
+    //   }
+
+    //   $pluckTp = TujuanPembelajaran::where('pembelajaran_id', $pembelajaran->id)->pluck('id');
+
+    //   try {
+    //       DB::beginTransaction();
+
+    //       foreach ($request->siswa_id as $siswaId) {
+
+    //           // CAPAIAN
+    //           PencapaianTp::where('siswa_id', $siswaId)->whereIn('tujuan_pembelajaran_id', $pluckTp)->delete();
+    //           $capaianKurang = "kurang-" . $siswaId;
+    //           $capaianOptimal = "optimal-" . $siswaId;
+    //           $this->createPencapaian($siswaId, $request->input($capaianKurang, []), 'kurang');
+    //           $this->createPencapaian($siswaId, $request->input($capaianOptimal, []), 'optimal');
+
+    //       }
+
+    //       DB::commit();
+
+    //       return back()->withSuccess('berhasil!');
+    //   } catch (\Exception $e) {
+    //       DB::rollBack();
+    //       return back()->withFailed('Terjadi kesalahan!');
+    //   }
+    // }
+
+    // NEW 2
+    {
+      $pembelajaran = $nilaibulanan;
+
+      $validasi = Validator::make($request->all(), [
+          'siswa_id.*' => 'required|exists:siswas,id',
+      ]);
+
+      if ($validasi->fails()) {
+          return response()->json(['failed' => 'Terjadi kesalahan, periksa kembali formulir!']);
+      }
+
+      $pluckTp = TujuanPembelajaran::where('pembelajaran_id', $pembelajaran->id)->pluck('id');
+
+      try {
         DB::beginTransaction();
+          foreach ($request->siswa_id as $i => $siswaId) {
+            PencapaianTp::where('siswa_id', $siswaId)->whereIn('tujuan_pembelajaran_id', $pluckTp)->delete();
 
-        try {
-            foreach ($request->siswa_id as $siswaId) {
+            $capaianKurang = "kurang-" . $siswaId;
+            $capaianOptimal = "optimal-" . $siswaId;
+            $reqNilai = "nilai-" . $siswaId;
 
-                $nilaiField = "nilai-$siswaId";
+            $deskripsiCapaianTinggi = collect($request->$capaianOptimal)->map(function ($optimalValue) {
+                return TujuanPembelajaran::find($optimalValue)->keterangan;
+            })->implode(', ');
 
-                if (!filled($request->$nilaiField)) {
-                    continue;
+            $deskripsiCapaianRendah = collect($request->$capaianKurang)->map(function ($kurangValue) {
+                return TujuanPembelajaran::find($kurangValue)->keterangan;
+            })->implode(', ');
+
+            if ($request->has($capaianKurang)) {
+                foreach ($request->$capaianKurang as $a => $kurangValue) {
+                    PencapaianTp::create([
+                        'siswa_id' => $siswaId,
+                        'tujuan_pembelajaran_id' => $kurangValue,
+                        'status_capaian' => 'kurang',
+                    ]);
                 }
-
-                NilaiBulanan::updateOrCreate(
-                    [
-                        'siswa_id'        => $siswaId,
-                        'pembelajaran_id'=> $pembelajaran->id,
-                        'bulan'           => $request->bulan,
-                        'semester'        => $request->semester,
-                        'tahun'           => $request->tahun,
-                    ],
-                    [
-                        'nilai'               => $request->$nilaiField,
-                        'capaian_tp_optimal'  => $request->capaian_tp_optimal[$siswaId] ?? null,
-                        'capaian_tp_kurang'   => $request->capaian_tp_kurang[$siswaId] ?? null,
-                        'deskripsi'           => $request->deskripsi[$siswaId] ?? null,
-                    ]
-                );
             }
 
-            DB::commit();
+            if ($request->has($capaianOptimal)) {
+                foreach ($request->$capaianOptimal as $b => $optimalValue) {
+                    PencapaianTp::create([
+                        'siswa_id' => $siswaId,
+                        'tujuan_pembelajaran_id' => $optimalValue,
+                        'status_capaian' => 'optimal',
+                    ]);
+                }
+            }
 
-            return response()->json([
-                'success' => 'Nilai bulanan berhasil disimpan'
-            ]);
+            NilaiBulanan::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
 
-        } catch (\Throwable $e) {
-            DB::rollBack();
+            if ($request->$reqNilai !== null) {
+                NilaiBulanan::create([
+                    'siswa_id' => $siswaId,
+                    'pembelajaran_id' => $pembelajaran->id,
+                    'nilai' => $request->$reqNilai,
+                    'deskripsi_capaian_tinggi' => $request->has($capaianOptimal) ? 'Mencapai Kompetensi dengan sangat baik dalam hal ' . $deskripsiCapaianTinggi : null,
+                    'deskripsi_capaian_rendah' => $request->has($capaianKurang) ? 'Perlu peningkatan dalam hal ' . $deskripsiCapaianRendah : null,
+                ]);
 
-            return response()->json([
-                'failed' => 'Terjadi kesalahan saat menyimpan data'
+                
+            }
+          }
+        DB::commit();
+        return response()->json(['success' => 'Data berhasil diperbarui!']);
+      } catch (\Throwable $th) {
+        DB::rollBack();
+        return response()->json(['failed' => 'Terjadi kesalahan, periksa kembali formulir!']);
+      }
+
+    }
+
+    public function updateDeskripsi(Pembelajaran $pembelajaran, Request $request)
+     {
+        $validasi = Validator::make($request->all(),[
+          'siswa_id.*' => 'required|exists:siswas,id',
+        ]);
+
+        if ($validasi->fails()) {
+          return response()->json(['failed' => 'Terjadi kesalahan, periksa kembali formulir!']);
+        }
+
+        try {
+          DB::beginTransaction();
+            foreach($request->siswa_id as $i => $siswaId){
+              $reqNilai = "nilai-" . $siswaId;
+              $deskripsiKurang = "deskripsi-capaian-kurang-" . $siswaId;
+              $deskripsiOptimal = "deskripsi-capaian-optimal-" . $siswaId;
+
+              NilaiAkhir::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
+
+              if (filled($request->$reqNilai)) {
+                NilaiAkhir::create([
+                  'siswa_id' => $siswaId,
+                  'pembelajaran_id' => $pembelajaran->id,
+                  'nilai' => $request->$reqNilai,
+                  'deskripsi_capaian_tinggi' => $request->$deskripsiOptimal,
+                  'deskripsi_capaian_rendah' => $request->$deskripsiKurang,
+                ]);
+              }
+
+            }
+          DB::commit();
+          return response()->json(['success' => 'Data berhasil diperbarui!']);
+        } catch (\Throwable $th) {
+          DB::rollBack();
+          return response()->json(['failed' => 'Terjadi kesalahan, periksa kembali formulir!']);
+        }
+
+    }
+
+    private function createPencapaian($siswaId, $values, $statusCapaian)
+    {
+        foreach ($values as $value) {
+            PencapaianTp::create([
+              'siswa_id' => $siswaId,
+              'tujuan_pembelajaran_id' => $value,
+              'status_capaian' => $statusCapaian,
             ]);
         }
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
     }
 }

@@ -24,7 +24,7 @@
         <div class="card">
           @can('admin')
             <div class="card-header">
-              <button class="btn btn-sm float-right btn-info btn-icon-split" data-toggle="modal" data-target="#modal-filter">
+              <button class="btn btn-sm float-right btn-info btn-icon-split rounded-pill" data-toggle="modal" data-target="#modal-filter">
                 <i class="fa fa-filter me-2"></i>
                 Filter Data
               </button>

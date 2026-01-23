@@ -94,7 +94,6 @@ Route::middleware('can:pembinaekskul')->group(function(){
 
   Route::post('/nilaibulanan/store', [NilaiBulananController::class, 'store'])
     ->middleware('can:gurumapel');
-
   });
 
   Route::delete('/tujuanpembelajaran/delete/{tujuanpembelajaran}', [TujuanPembelajaranController::class, 'delete']);
