@@ -157,10 +157,10 @@ class NilaiBulananController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Pembelajaran $nilaiakhir)
+    public function update(Request $request, Pembelajaran $pembelajaran)
     // OLD
     // {
-    //     $pembelajaran = $nilaiakhir;
+    //     $pembelajaran = $NilaiBulanan;
     //     $validasi = Validator::make($request->all(),[
     //       'siswa_id.*' => 'required|exists:siswas,id',
     //     ]);
@@ -210,10 +210,10 @@ class NilaiBulananController extends Controller
     //         }
     //       }
 
-    //       NilaiAkhir::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
+    //       NilaiBulanan::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
 
     //       if (filled($request->$reqNilai)) {
-    //         NilaiAkhir::create([
+    //         NilaiBulanan::create([
     //           'siswa_id' => $siswaId,
     //           'pembelajaran_id' => $pembelajaran->id,
     //           'nilai' => $request->$reqNilai ?? null,
@@ -230,7 +230,7 @@ class NilaiBulananController extends Controller
 
     // NEW
     // {
-    //   $pembelajaran = $nilaiakhir;
+    //   $pembelajaran = $NilaiBulanan;
     //   $validasi = Validator::make($request->all(), [
     //       'siswa_id.*' => 'required|exists:siswas,id',
     //   ]);
@@ -287,13 +287,24 @@ class NilaiBulananController extends Controller
             $capaianOptimal = "optimal-" . $siswaId;
             $reqNilai = "nilai-" . $siswaId;
 
-            $deskripsiCapaianTinggi = collect($request->$capaianOptimal)->map(function ($optimalValue) {
-                return TujuanPembelajaran::find($optimalValue)->keterangan;
-            })->implode(', ');
+            $deskripsiCapaianTinggi = collect($request->input($capaianOptimal, []))
+                ->map(fn ($id) => TujuanPembelajaran::find($id)?->keterangan)
+                ->filter()
+                ->implode(', ');
 
-            $deskripsiCapaianRendah = collect($request->$capaianKurang)->map(function ($kurangValue) {
-                return TujuanPembelajaran::find($kurangValue)->keterangan;
-            })->implode(', ');
+            $deskripsiCapaianRendah = collect($request->input($capaianKurang, []))
+                ->map(fn ($id) => TujuanPembelajaran::find($id)?->keterangan)
+                ->filter()
+                ->implode(', ');
+
+
+            // $deskripsiCapaianTinggi = collect($request->$capaianOptimal)->map(function ($optimalValue) {
+            //     return TujuanPembelajaran::find($optimalValue)->keterangan;
+            // })->implode(', ');
+
+            // $deskripsiCapaianRendah = collect($request->$capaianKurang)->map(function ($kurangValue) {
+            //     return TujuanPembelajaran::find($kurangValue)->keterangan;
+            // })->implode(', ');
 
             if ($request->has($capaianKurang)) {
                 foreach ($request->$capaianKurang as $a => $kurangValue) {
@@ -355,10 +366,10 @@ class NilaiBulananController extends Controller
               $deskripsiKurang = "deskripsi-capaian-kurang-" . $siswaId;
               $deskripsiOptimal = "deskripsi-capaian-optimal-" . $siswaId;
 
-              NilaiAkhir::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
+              NilaiBulanan::where('siswa_id', $siswaId)->where('pembelajaran_id', $pembelajaran->id)->delete();
 
               if (filled($request->$reqNilai)) {
-                NilaiAkhir::create([
+                NilaiBulanan::create([
                   'siswa_id' => $siswaId,
                   'pembelajaran_id' => $pembelajaran->id,
                   'nilai' => $request->$reqNilai,

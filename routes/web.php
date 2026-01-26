@@ -138,6 +138,6 @@ Route::middleware('can:pembinaekskul')->group(function(){
   Route::get('/cetakrapor/semester/{siswa}/{paper}', [CetakRaportController::class, 'semester'])->name('cetakraport.semester');
   Route::get('/cetakrapor/p5/{siswa}/{paper}', [CetakRaportController::class, 'p5'])->name('cetakraport.p5');
 
-  Route::get('/cetakrapor/bulanan/{siswa}/{bulan}/{paper}',[CetakRaportController::class, 'raporBulanan'])->name('cetakraport.bulanan');
+  Route::get('/cetakrapor/bulanan/{siswa}/{bulan}/{paper}',[CetakRaportController::class, 'bulanan'])->name('cetakraport.bulanan');
 
 });

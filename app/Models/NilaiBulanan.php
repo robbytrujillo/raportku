@@ -26,10 +26,10 @@ class NilaiBulanan extends Model
     }
 
     // Nilai Semester
-    public function scopeSemester($query, $semester, $tahun)
-    {
-        return $query->where('semester', $semester)
-                     ->whereNull('bulan')
-                     ->where('tahun', $tahun);
-    }
+    // public function scopeSemester($query, $semester, $tahun)
+    // {
+    //     return $query->where('semester', $semester)
+    //                  ->whereNull('bulan')
+    //                  ->where('tahun', $tahun);
+    // }
 }

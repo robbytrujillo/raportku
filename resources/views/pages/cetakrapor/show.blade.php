@@ -58,7 +58,7 @@
                     </select>
                   </td>
                 </tr>
-                <tr>
+                {{--  <tr>
                   <td class="fw-bold">Bulan</td>
                   <td class="px-2">:</td>
                   <td>
@@ -73,7 +73,7 @@
                       @endforeach
                     </select>
                   </td>
-                </tr>
+                </tr>  --}}
 
               </table>
             </div>

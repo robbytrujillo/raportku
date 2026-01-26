@@ -18,18 +18,4 @@ class NilaiAkhir extends Model
         return $this->belongsTo(Pembelajaran::class);
     }
 
-    // Nilai Bulanan
-    public function scopeBulanan($query, $bulan, $tahun)
-    {
-        return $query->where('bulan', $bulan)
-                     ->where('tahun', $tahun);
-    }
-
-    // Nilai Semester
-    public function scopeSemester($query, $semester, $tahun)
-    {
-        return $query->where('semester', $semester)
-                     ->whereNull('bulan')
-                     ->where('tahun', $tahun);
-    }
 }

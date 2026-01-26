@@ -52,7 +52,7 @@
     <div class="content">
 
       <div class="" style="text-align: center">
-        <h3><strong>LAPORAN HASIL BELAJAR <p>{{ date('M Y') }}</p></strong></h3>
+        <h3><strong>LAPORAN HASIL BELAJAR</strong></h3>
       </div>
 
       <table cellspacing="0">
@@ -184,7 +184,7 @@
 
       <br><br>
 
-      {{--  <table cellspacing="0" style="width: 50%">
+      <table cellspacing="0" style="width: 50%">
         <!-- Ketidakhadiran  -->
           <tr class="nilai">
             <td style="border-right:0 ;">Sakit</td>
@@ -202,7 +202,7 @@
             <td class="false"></td>
           </tr>
         <!-- End Ketidakhadiran  -->
-      </table>  --}}
+      </table>
 
       <br>
 
