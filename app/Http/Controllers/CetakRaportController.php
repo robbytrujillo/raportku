@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use PDF;
-use App\Models\Kelas;
-use App\Models\Siswa;
-use App\Models\Projek;
-use App\Models\Dimensi;
-use App\Models\Sekolah;
-use App\Models\Tingkat;
-use App\Models\NilaiAkhir;
-use App\Models\CapaianAkhir;
-use App\Models\CatatanWalas;
-use App\Models\NilaiBulanan;
-use App\Models\Pembelajaran;
-use Illuminate\Http\Request;
 use App\Models\AnggotaEkskul;
+use App\Models\CapaianAkhir;
 use App\Models\CapaianProjek;
+use App\Models\CatatanWalas;
+use App\Models\Dimensi;
+use App\Models\Kelas;
 use App\Models\KelompokMapel;
 use App\Models\Ketidakhadiran;
+use App\Models\NilaiAkhir;
+use App\Models\Pembelajaran;
+use App\Models\Projek;
+use App\Models\Sekolah;
+use App\Models\Siswa;
+use App\Models\Tingkat;
+use PDF;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+// use Barryvdh\DomPDF\Facade\Pdf;
 
 class CetakRaportController extends Controller
 {
@@ -146,66 +146,54 @@ class CetakRaportController extends Controller
     }
 
     public function semester(Siswa $siswa, $paper) {
-      if
-      (
+
+    // ====== AKSES ======
+    if (
         !Auth::user()->isAdmin() &&
         !(Auth::user()->isWaliKelas() && ($siswa->kelas_id == Auth::user()->guru->kelas->id)) &&
         !(Auth::user()->isSiswa() && ($siswa->id == Auth::user()->siswa->id))
-      )
-      {
+    ) {
         abort(403);
-      }
-      $kelMapelId = $siswa->kelas->pembelajaran->pluck('mapel.kelompok_mapel_id')->unique();
-      return PDF::loadview('pages.cetakrapor.semester.print',[
+    }
+
+    // ====== LOGO (FIX DOMPDF) ======
+    $logoPath = public_path('img/ihbs-logo.png');
+
+    if (!file_exists($logoPath)) {
+        abort(500, 'Logo sekolah tidak ditemukan');
+    }
+
+    $logoBase64 = base64_encode(file_get_contents($logoPath));
+
+    // ====== DATA ======
+    $kelMapelId = $siswa->kelas->pembelajaran
+        ->pluck('mapel.kelompok_mapel_id')
+        ->unique();
+
+    return PDF::loadview('pages.cetakrapor.semester.print', [
         'siswa' => $siswa,
         'sekolah' => Sekolah::first(),
         'kelompokmapel' => KelompokMapel::whereIn('id', $kelMapelId)->get(),
         'pembelajaran' => Pembelajaran::where('kelas_id', $siswa->kelas_id)->get(),
-        'nilaiakhir' => NilaiAkhir::where('siswa_id', $siswa->id)->whereIn('pembelajaran_id', $siswa->kelas->pembelajaran->pluck('id')),
+        'nilaiakhir' => NilaiAkhir::where('siswa_id', $siswa->id)
+            ->whereIn('pembelajaran_id', $siswa->kelas->pembelajaran->pluck('id')),
         'anggotaEkskul' => AnggotaEkskul::where('siswa_id', $siswa->id)->get(),
         'ketidakhadiran' => Ketidakhadiran::where('siswa_id', $siswa->id)->get(),
         'catatanwalas' => CatatanWalas::where('siswa_id', $siswa->id)->get(),
-      ])->setPaper($paper, 'Potrait')->stream('RAPOR HASIL BELAJAR - ' . $siswa->name . ' ' . $siswa->kelas->name . ' ' . $siswa->nis . '.pdf');
-    }
-    
-    public function bulanan(Siswa $siswa, $paper) {
-      if
-      (
-        !Auth::user()->isAdmin() &&
-        !(Auth::user()->isWaliKelas() && ($siswa->kelas_id == Auth::user()->guru->kelas->id)) &&
-        !(Auth::user()->isSiswa() && ($siswa->id == Auth::user()->siswa->id))
-      )
-      {
-        abort(403);
-      }
-      $kelMapelId = $siswa->kelas->pembelajaran->pluck('mapel.kelompok_mapel_id')->unique();
-      return PDF::loadview('pages.cetakrapor.bulanan.print',[
-        'siswa' => $siswa,
-        'sekolah' => Sekolah::first(),
-        'kelompokmapel' => KelompokMapel::whereIn('id', $kelMapelId)->get(),
-        'pembelajaran' => Pembelajaran::where('kelas_id', $siswa->kelas_id)->get(),
-        'nilaibulanan' => NilaiBulanan::where('siswa_id', $siswa->id)->whereIn('pembelajaran_id', $siswa->kelas->pembelajaran->pluck('id')),
 
-        'catatanwalas' => CatatanWalas::where('siswa_id', $siswa->id)->get(),
-      ])->setPaper($paper, 'Potrait')->stream('RAPOR HASIL BELAJAR - ' . $siswa->name . ' ' . $siswa->kelas->name . ' ' . $siswa->nis . '.pdf');
-    }
+        // ⬇️ PENTING
+        'logoBase64' => $logoBase64,
+    ])
+    ->setPaper($paper, 'Potrait')
+    ->setOptions([
+        'isRemoteEnabled' => true,
+    ])
+    ->stream(
+        'RAPOR HASIL BELAJAR - ' .
+        $siswa->name . ' ' .
+        $siswa->kelas->name . ' ' .
+        $siswa->nis . '.pdf'
+    );
+}
 
-    // public function raporBulanan($siswaId, $bulan, $kertas)
-    // {
-    //     $siswa = Siswa::findOrFail($siswaId);
-
-    //     $nilai = NilaiAkhir::where('siswa_id', $siswaId)
-    //         ->where('bulan', $bulan)
-    //         ->where('tahun', now()->year)
-    //         ->with(['pembelajaran.mapel'])
-    //         ->get();
-
-    //     return PDF::loadView('pages.cetakrapor.bulanan.print', [
-    //         'siswa' => $siswa,
-    //         'nilai' => $nilai,
-    //         'bulan' => $bulan,
-    //         'sekolah' => Sekolah::first(),
-    //     ])->setPaper($kertas, 'Potrait')
-    //       ->stream('RAPOR BULANAN - '.$siswa->name.'.pdf');
-    // }
 }

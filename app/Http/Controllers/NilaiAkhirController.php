@@ -322,8 +322,8 @@ class NilaiAkhirController extends Controller
                     'siswa_id' => $siswaId,
                     'pembelajaran_id' => $pembelajaran->id,
                     'nilai' => $request->$reqNilai,
-                    'deskripsi_capaian_tinggi' => $request->has($capaianOptimal) ? 'Mencapai Kompetensi dengan sangat baik dalam hal ' . $deskripsiCapaianTinggi : null,
-                    'deskripsi_capaian_rendah' => $request->has($capaianKurang) ? 'Perlu peningkatan dalam hal ' . $deskripsiCapaianRendah : null,
+                    'deskripsi_capaian_tinggi' => $request->has($capaianOptimal) ? 'Peserta didik ' . $deskripsiCapaianTinggi : null,
+                    'deskripsi_capaian_rendah' => $request->has($capaianKurang) ? 'Peserta didik ' . $deskripsiCapaianRendah : null,
                 ]);
 
                 

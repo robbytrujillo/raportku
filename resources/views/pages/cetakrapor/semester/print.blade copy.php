@@ -3,48 +3,114 @@
 
 @php
   use Carbon\Carbon;
-  use Illuminate\Support\Str;
 @endphp
 
 <head>
   <meta charset="utf-8" />
   <title>LAPORAN HASIL BELAJAR | {{$siswa->name}} ({{$siswa->nis}})</title>
-  {{--  <link href="./cetakraport/invoice_raport.css" rel="stylesheet">    --}}
+  <link href="./cetakraport/invoice_raport.css" rel="stylesheet">
   <style>
-    {!! file_get_contents(public_path('cetakraport/invoice_raport.css')) !!}
+    /* =====================
+   KOP SURAT RAPOR
+===================== */
+
+    .invoice-box {
+      width: 100%;
+      padding: 25px;
+      font-family: "Times New Roman", serif;
+    }
+
+    .kop-surat {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .kop-logo img {
+      width: 80px;
+    }
+
+    .kop-text-1 {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .kop-text-2 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .kop-text-3 {
+      font-size: 11px;
+    }
+
+    .kop-line {
+      border-top: 2px solid #000;
+      margin-top: 5px;
+    }
+
+    .header {
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .judul {
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .judul-utama {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .judul-sub {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .nilai-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .nilai-table td {
+      border: 1px solid #000;
+      padding: 6px;
+    }
+
+    .nilai-table .heading td {
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .nilai-table .group td {
+      font-weight: bold;
+      background: #f2f2f2;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .after-kop {
+      margin-top: 25px; /* atur jarak sesuai kebutuhan */
+      clear: both;
+    }
+
+
   </style>
-
-  {{--  <style>
-body {
-  font-family: "Times New Roman", serif;
-  font-size: 12px;
-}
-
-.kop-text-1 {
-  font-size: 16px;
-  font-weight: bold;
-}
-.kop-text-2 {
-  font-size: 20px;
-  font-weight: bold;
-}
-.kop-text-3 {
-  font-size: 11px;
-}
-</style>  --}}
 
 </head>
 
 <body>
 
-  <div class="invoice-box">
-
-    {{-- HEADER --}}
-    <div class="header">
+  {{-- KOP SURAT --}}
+    <div class="kop-surat">
       <table width="100%" cellspacing="0" cellpadding="0">
         <tr>
           <td width="15%" style="text-align:center;">
-            {{--  <img src="{{ asset('img/ihbs-logo.png') }}" width="80">  --}}
+            <img src="{{ public_path('images/logo-ihbs.png') }}" alt="Logo Sekolah" class="logo">
           </td>
           <td width="85%" style="text-align:center;">
             <div class="kop-text-1">YAYASAN DAKWAH ISLAM CAHAYA ILMU</div>
@@ -56,15 +122,19 @@ body {
           </td>
         </tr>
       </table>
+      <hr class="kop-line">
     </div>
-    {{-- END HEADER --}}
+ 
+{{-- END KOP SURAT --}}
 
-    {{-- CONTENT --}}
-    <div class="content">
+<div class="after-kop"></div>
 
-      <div class="" style="text-align: center">
-        <h3><strong>LAPORAN HASIL BELAJAR</strong></h3>
-         <table>
+
+  <div class="invoice-box">
+    
+    {{-- HEADER --}}
+    <div class="header">
+      <table>
         <tr>
           <td>Nama</td>
           <td>: {{$siswa->name}} </td>
@@ -92,6 +162,14 @@ body {
           <td>: {{$siswa->kelas->tapel->tahun_pelajaran}}</td>
         </tr>
       </table>
+    </div>
+    {{-- END HEADER --}}
+
+    {{-- CONTENT --}}
+    <div class="content">
+
+      <div class="" style="text-align: center">
+        <h3><strong>LAPORAN HASIL BELAJAR <p>{{ Str::upper(now()->translatedFormat('F Y')) }}</p></strong></h3>
       </div>
 
       <table cellspacing="0">
@@ -99,7 +177,8 @@ body {
         <tr class="heading">
           <td style="width: 8%">No</td>
           <td style="width: 30%">Mata Pelajaran</td>
-          <td style="width: 10%">Nilai Akhir</td>
+          <td style="width: 10%">Angka</td>
+          {{--  <td style="width: 10%">Nilai Akhir</td>  --}}
           <td>Capaian Kompetensi</td>
         </tr>
 
@@ -150,7 +229,7 @@ body {
     {{-- HEADER --}}
     <div class="header">
       <table>
-        {{--  <tr>
+        <tr>
           <td>Nama</td>
           <td>: {{$siswa->name}} </td>
           <td>Kelas</td>
@@ -175,13 +254,13 @@ body {
           <td>: {{$siswa->kelas->tapel->tempat ?? 'Kota'}}</td>
           <td>Tahun Pelajaran</td>
           <td>: {{$siswa->kelas->tapel->tahun_pelajaran}}</td>
-        </tr>  --}}
+        </tr>
       </table>
     </div>
 
     {{-- CONTENT --}}
     <div class="content">
-      <table cellspacing="0">
+      {{--  <table cellspacing="0">
         <!-- Ekskul -->
         <tr class="heading">
           <td style="width: 8%;">NO</td>
@@ -219,11 +298,11 @@ body {
           @endforeach
         @endif
         <!-- End Ekskul -->
-      </table>
+      </table>  --}}
 
-      <br><br>
+      {{--  <br><br>  --}}
 
-      <table cellspacing="0" style="width: 50%">
+      {{--  <table cellspacing="0" style="width: 50%">
         <!-- Ketidakhadiran  -->
           <tr class="nilai">
             <td style="border-right:0 ;">Sakit</td>
@@ -241,11 +320,11 @@ body {
             <td class="false"></td>
           </tr>
         <!-- End Ketidakhadiran  -->
-      </table>
+      </table>  --}}
 
       <br>
 
-      <table cellspacing="0">
+      {{--  <table cellspacing="0">
         <!-- Catatan Wali Kelas -->
       <tr>
         <td colspan="4" style="height: 25px; padding-top: 5px"><strong>CATATAN WALI KELAS</strong></td>
@@ -291,18 +370,18 @@ body {
         </tr>
       @endif
 
-      </table>
+      </table>  --}}
 
     </div>
 
     <div style="padding-top:1rem;">
       <table>
         <tr>
-          <td style="width: 30%;">
+          {{--  <td style="width: 30%;">
             Mengetahui <br>
             Orang Tua/Wali, <br><br><br><br>
             .............................
-          </td>
+          </td>  --}}
           <td style="width: 35%;"></td>
           <td style="width: 35%;">
         {{$siswa->kelas->tapel->tempat ?? 'Tempat'}}, {{ Carbon::createFromFormat('Y-m-d', Str::before($siswa->kelas->tapel->tanggal, ' '))->locale('id')->isoFormat('D MMMM YYYY') ?? 'Tanggal'}}, <br>
