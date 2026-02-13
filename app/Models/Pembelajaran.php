@@ -25,6 +25,10 @@ class Pembelajaran extends Model
     public function tujuanPembelajaran(){
       return $this->hasMany(TujuanPembelajaran::class);
     }
+    
+    public function tujuanPembelajaranBulanan(){
+      return $this->hasMany(TujuanPembelajaranBulanan::class);
+    }
 
     public function nilaiAkhir(){
       return $this->hasMany(NilaiAkhir::class);

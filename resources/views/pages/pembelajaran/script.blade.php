@@ -40,6 +40,12 @@
       loadAMoment();
       window.location.href = '/tujuanpembelajaran/' +$(this).data('id');
     });
+    
+    // SHOW TUJUAN PEMBELAJARAN BULANAN
+    $('body').on('click', '.tp-button-bulanan', function(){
+      loadAMoment();
+      window.location.href = '/tujuanpembelajaranbulanan/' +$(this).data('id');
+    });
 
     // SHOW NILAI AKHIR
     $('body').on('click', '.nilai-button', function(){

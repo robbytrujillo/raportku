@@ -99,7 +99,7 @@ body {
         <tr class="heading">
           <td style="width: 8%">No</td>
           <td style="width: 30%">Mata Pelajaran</td>
-          <td style="width: 10%">Nilai Akhir</td>
+          <td style="width: 10%">Angka</td>
           <td>Capaian Kompetensi</td>
         </tr>
 
