@@ -44,7 +44,7 @@ body {
       <table width="100%" cellspacing="0" cellpadding="0">
         <tr>
           <td width="15%" style="text-align:center;">
-            {{--  <img src="{{ asset('img/ihbs-logo.png') }}" width="80">  --}}
+            <img src="{{ public_path('img/ihbs-logo.png') }}" width="80">
           </td>
           <td width="85%" style="text-align:center;">
             <div class="kop-text-1">YAYASAN DAKWAH ISLAM CAHAYA ILMU</div>
