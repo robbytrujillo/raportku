@@ -47,12 +47,12 @@ body {
           <td width="15%" style="text-align:center;">
             {{--  <img src="{{ public_path('img/ihbs-logo.png') }}" width="80">  --}}
             {{--  <img src="{{ asset('img/ihbs-logo.png') }}" width="80">  --}}
-             @php
-            $path = public_path('img/ihbs-logo.png');
-            $type = pathinfo($path, PATHINFO_EXTENSION);
-            $data = file_get_contents($path);
-            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-          @endphp
+            @php
+              $path = public_path('img/ihbs-logo.png');
+              $type = pathinfo($path, PATHINFO_EXTENSION);
+              $data = file_get_contents($path);
+              $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            @endphp
           
             <img src="{{ $base64 }}" width="80">
           </td>
@@ -73,33 +73,41 @@ body {
     <div class="content">
 
       <div class="" style="text-align: center">
-        <h3><strong>LAPORAN HASIL BELAJAR</strong></h3>
+        <h3><strong>LAPORAN BULANAN (PERIODE : {{ Str::upper(now()->format('F')) }}) <br>TAHUN PELAJARAN {{$siswa->kelas->tapel->tahun_pelajaran}}</strong></h3>
+        {{--  <h3><strong><td>Tahun Pelajaran : {{$siswa->kelas->tapel->tahun_pelajaran}}</td></strong></h3>  --}}
          <table>
-        <tr>
-          <td>Nama</td>
+        <tr class="">
+          <td>Nama Siswa</td>
           <td>: {{$siswa->name}} </td>
+          
+        </tr>
+        <tr>
           <td>Kelas</td>
           <td>: {{$siswa->kelas->name}}</td>
         </tr>
         <tr>
-          <td>NIS/NISN</td>
-          <td>: {{$siswa->nis}} / {{$siswa->nisn}} </td>
-          <td>Fase</td>
-          <td>: {{$siswa->kelas->tingkat->fase->name}}</td>
+          <td>Semester</td>
+          <td>: {{ $siswa->kelas->tapel->semester == 1 ? 'Ganjil' : 'Genap'}}</td>
         </tr>
         <tr>
-          <td>Nama Sekolah</td>
-          <td>: {{$sekolah->name}}</td>
-          <td>Semester</td>
-          <td>:
-            {{ $siswa->kelas->tapel->semester == 1 ? '1 (Ganjil)' : '2 (Genap)'}}
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            {{--  {{ $siswa->kelas->tapel->semester == 1 ? '1 (Ganjil)' : '2 (Genap)'}}  --}}
+            {{--  {{ $siswa->kelas->tapel->semester == 1 ? 'Ganjil' : 'Genap'}}  --}}
           </td>
         </tr>
         <tr>
-          <td>Alamat</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+
+          {{--  <td>Alamat</td>
           <td>: {{$siswa->kelas->tapel->tempat ?? 'Kota'}}</td>
           <td>Tahun Pelajaran</td>
-          <td>: {{$siswa->kelas->tapel->tahun_pelajaran}}</td>
+          <td>: {{$siswa->kelas->tapel->tahun_pelajaran}}</td>  --}}
         </tr>
       </table>
       </div>
