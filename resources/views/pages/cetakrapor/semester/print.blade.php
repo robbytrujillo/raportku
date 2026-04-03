@@ -118,7 +118,7 @@ body {
           <td style="width: 8%">No</td>
           <td style="width: 30%">Mata Pelajaran</td>
           <td style="width: 10%">Angka</td>
-          <td>Capaian Kompetensi</td>
+          <td>Deskripsi</td>
         </tr>
 
         @if ($kelompokmapel->count() >= 1)
@@ -153,21 +153,21 @@ body {
     {{-- END CONTENT --}}
 
     {{-- FOOTER --}}
-    <div class="footer" style="font-family: 'Times New Roman'; font-weight: bold;">
+    {{--  <div class="footer" style="font-family: 'Times New Roman'; font-weight: bold;">
       <i>{{$siswa->kelas->name}} | {{$siswa->name}} | {{$siswa->nis}}</i> <b style="float: right;"><i>Halaman 1</i></b>
-    </div>
+    </div>  --}}
     {{-- END FOOTER --}}
 
-  </div>
+  {{--  </div>  --}}
 
-  <div class="page-break"></div>
+  {{--  <div class="page-break"></div>  --}}
 
-  <!-- Page 4 (Other) -->
-  <div class="invoice-box">
+  {{--  <!-- Page 4 (Other) -->
+  <div class="invoice-box">  --}}
 
     {{-- HEADER --}}
-    <div class="header">
-      <table>
+    {{--  <div class="header">
+      <table>  --}}
         {{--  <tr>
           <td>Nama</td>
           <td>: {{$siswa->name}} </td>
@@ -194,11 +194,11 @@ body {
           <td>Tahun Pelajaran</td>
           <td>: {{$siswa->kelas->tapel->tahun_pelajaran}}</td>
         </tr>  --}}
-      </table>
-    </div>
+      {{--  </table>
+    </div>  --}}
 
     {{-- CONTENT --}}
-    <div class="content">
+    {{--  <div class="content">
       <table cellspacing="0">
         <!-- Ekskul -->
         <tr class="heading">
@@ -311,15 +311,16 @@ body {
 
       </table>
 
-    </div>
+    </div>  --}}
 
     <div style="padding-top:1rem;">
       <table>
         <tr>
-          <td style="width: 30%;">
+          <td style="width: 35%;">
             Mengetahui <br>
-            Orang Tua/Wali, <br><br><br><br>
-            .............................
+            Kepala Sekolah, <br><br><br><br>
+            <b><u>{{$sekolah->namakepsek}}</u></b><br>
+            NIP. {{$sekolah->nipkepsek}}
           </td>
           <td style="width: 35%;"></td>
           <td style="width: 35%;">
@@ -329,7 +330,7 @@ body {
             NIP. {{$siswa->kelas->guru ? $siswa->kelas->guru->nip : ''}}
           </td>
         </tr>
-        <tr>
+        {{--  <tr>
           <td style="width: 30%;"></td>
           <td style="width: 35%;">
             Mengetahui <br>
@@ -338,7 +339,7 @@ body {
             NIP. {{$sekolah->nipkepsek}}
           </td>
           <td style="width: 35%;"></td>
-        </tr>
+        </tr>  --}}
       </table>
     </div>
 
