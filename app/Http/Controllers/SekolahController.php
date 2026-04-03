@@ -63,4 +63,43 @@ class SekolahController extends Controller
       }
       return response()->json(['success' => 'Logo Sekolah berhasil diperbarui']);
     }
+
+    // ➕ TAMBAHAN
+  public function updateTtd(Request $request){
+    $validasi = Validator::make($request->all(),[
+      'ttd_kepsek' => 'required|image|max:2048',
+    ]);
+
+    if ($validasi->fails()) {
+      return response()->json(['errors' => $validasi->errors()]);
+    } else {
+
+      $fileName = 'ttd_' . time() . '.' . $request->file('ttd_kepsek')->getClientOriginalExtension();
+
+      try {
+        DB::beginTransaction();
+
+        $request->file('ttd_kepsek')->move('img', $fileName);
+
+        $sekolah = Sekolah::first();
+
+        // hapus lama jika ada
+        if ($sekolah->ttd_kepsek && File::exists(public_path('img/'.$sekolah->ttd_kepsek))) {
+          File::delete(public_path('img/'.$sekolah->ttd_kepsek));
+        }
+
+        $sekolah->update([
+          'ttd_kepsek' => $fileName
+        ]);
+
+        DB::commit();
+
+      } catch (\Throwable $th) {
+        DB::rollBack();
+        return response()->json(['failed' => 'Terjadi kesalahan!']);
+      }
+    }
+
+    return response()->json(['success' => 'TTD berhasil diupload']);
+  }
 }

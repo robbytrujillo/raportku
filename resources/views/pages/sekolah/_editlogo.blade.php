@@ -25,3 +25,23 @@
     </div>
 
 </form>
+
+<hr>
+
+<small><i>Upload Tanda Tangan</i></small>
+
+<form action="/sekolah/updatettd" method="POST" enctype="multipart/form-data" id="form-update-ttd">
+    @csrf
+
+    <div class="mb-2">
+        <label>Kepala Sekolah</label>
+        <input type="file" name="ttd_kepsek" class="form-control">
+    </div>
+
+    {{--  <div class="mb-2">
+        <label>Wali Kelas</label>
+        <input type="file" name="ttd_walas" class="form-control">
+    </div>  --}}
+
+    <button type="submit" class="btn btn-primary">Upload TTD</button>
+</form>

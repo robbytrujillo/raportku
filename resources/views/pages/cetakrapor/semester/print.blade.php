@@ -14,7 +14,7 @@
     {!! file_get_contents(public_path('cetakraport/invoice_raport.css')) !!}
   </style>
 
-  {{--  <style>
+  <style>
 body {
   font-family: "Times New Roman", serif;
   font-size: 12px;
@@ -24,14 +24,19 @@ body {
   font-size: 16px;
   font-weight: bold;
 }
+
 .kop-text-2 {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 22px; /* lebih besar */
+  font-weight: bold; /* lebih tebal */
+  letter-spacing: 1px; /* biar elegan */
+  margin-bottom: 0px; /* JARAK KE BAWAH */
 }
+
 .kop-text-3 {
   font-size: 11px;
+  line-height: 1.4; /* biar tidak terlalu rapat */
 }
-</style>  --}}
+</style>
 
 </head>
 
@@ -75,14 +80,14 @@ body {
       <div class="" style="text-align: center">
         <h3><strong>LAPORAN BULANAN (PERIODE : {{ Str::upper(now()->format('F')) }}) <br>TAHUN PELAJARAN {{$siswa->kelas->tapel->tahun_pelajaran}}</strong></h3>
         {{--  <h3><strong><td>Tahun Pelajaran : {{$siswa->kelas->tapel->tahun_pelajaran}}</td></strong></h3>  --}}
-         <table>
+        <table style="width: 40%; margin-left: 0;">
         <tr class="">
           <td>Nama Siswa</td>
           <td>: {{$siswa->name}} </td>
           
         </tr>
         <tr>
-          <td>Kelas</td>
+          <td>Kelas/Perminatan</td>
           <td>: {{$siswa->kelas->name}}</td>
         </tr>
         <tr>
@@ -312,17 +317,49 @@ body {
       </table>
 
     </div>  --}}
+    <br>
+    <table style="width: 30%; border: 1px solid #000; margin-bottom: 20px;">
+      <tr>
+        <td style="padding: 5px;">
+          <i>
+            Kriteria : A : 92 - 100 <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B : 83 - 91 <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C : 76 - 82 <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D : &lt; 76
+          </i>
+        </td>
+      </tr>
+    </table>
 
     <div style="padding-top:1rem;">
       <table>
         <tr>
           <td style="width: 35%;">
             Mengetahui <br>
-            Kepala Sekolah, <br><br><br><br>
+            Kepala Sekolah, <br>
+            {{--  <br><br><br><br>  --}}
+
+            {{-- ✅ TTD KEPSEK --}}
+            @if($sekolah->ttd_kepsek)
+            @php
+              $path = public_path('img/'.$sekolah->ttd_kepsek);
+              $type = pathinfo($path, PATHINFO_EXTENSION);
+              $data = file_get_contents($path);
+              $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            @endphp
+          
+            <img src="{{ $base64 }}" width="80" height="70"> <br>
+
+              {{--  <img src="{{ public_path('img/'.$sekolah->ttd_kepsek) }}" height="70"><br>  --}}
+            @else
+              <br><br><br>
+            @endif
+
             <b><u>{{$sekolah->namakepsek}}</u></b><br>
             NIP. {{$sekolah->nipkepsek}}
           </td>
           <td style="width: 35%;"></td>
+
           <td style="width: 35%;">
         {{$siswa->kelas->tapel->tempat ?? 'Tempat'}}, {{ Carbon::createFromFormat('Y-m-d', Str::before($siswa->kelas->tapel->tanggal, ' '))->locale('id')->isoFormat('D MMMM YYYY') ?? 'Tanggal'}}, <br>
             Wali Kelas, <br><br><br><br>
@@ -345,7 +382,7 @@ body {
 
     {{-- FOOTER --}}
     <div class="footer" style="font-family: 'Times New Roman'; font-weight: bold;">
-      <i>{{$siswa->kelas->name}} | {{$siswa->name}} | {{$siswa->nis}}</i> <b style="float: right;"><i>Halaman 2</i></b>
+      <i>{{$siswa->kelas->name}} | {{$siswa->name}} | {{$siswa->nis}}</i> <b style="float: right;"><i></i></b>
     </div>
 
   </div>

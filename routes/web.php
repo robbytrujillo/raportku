@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function(){
   Route::get('/sekolah', [SekolahController::class, 'index'])->name('sekolah.index')->middleware('can:admin');
   Route::put('/sekolah/updatedata', [SekolahController::class, 'updateData'])->name('sekolah.updatedata')->middleware('can:admin');
   Route::put('/sekolah/updatelogo', [SekolahController::class, 'updateLogo'])->name('sekolah.updatelogo')->middleware('can:admin');
+  Route::post('/sekolah/updatettd', [SekolahController::class, 'updateTtd']);
 
   Route::resource('/tapel', TapelController::class)->middleware('can:admin');
   Route::get('/kelas/{id}/name', [HelperController::class, 'getKelasName'])->name('get.kelas.name');

@@ -33,6 +33,7 @@
         }
       });
 
+      {{--  baru  --}}
     $('#form-update-logo').on('submit', function(e){
       e.preventDefault();
       showLoader();
@@ -111,4 +112,28 @@
         }
       });
     }
+
+    $('#form-update-ttd').on('submit', function(e){
+    e.preventDefault();
+    showLoader();
+
+    $.ajax({
+        url: '/sekolah/updatettd',
+        type: 'POST',
+        data: new FormData(this),
+        contentType: false,
+        processData: false,
+
+        success:function(response){
+            hideLoader();
+            if (response.errors) {
+                warningToast('Upload gagal');
+            } else if(response.failed){
+                failedToast(response.failed);
+            } else {
+                successToast(response.success);
+            }
+        }
+    });
+});
 </script>
