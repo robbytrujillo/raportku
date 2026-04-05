@@ -119,41 +119,85 @@ body {
 
       <table cellspacing="0">
 
-        <tr class="heading">
-          <td style="width: 8%">No</td>
-          <td style="width: 30%">Mata Pelajaran</td>
-          <td style="width: 10%">Angka</td>
-          <td>Deskripsi</td>
-        </tr>
+      <tr class="heading">
+        <td style="width: 8%">No</td>
+        <td style="width: 30%">Mata Pelajaran</td>
+        <td style="width: 10%">Angka</td>
+        <td>Deskripsi</td>
+      </tr>
 
-        @if ($kelompokmapel->count() >= 1)
-          @foreach ($kelompokmapel as $item)
+      @if ($kelompokmapel->count() >= 1)
+
+        @php
+          $no = 0;
+          $totalNilai = 0;
+          $jumlahMapel = 0;
+        @endphp
+
+        @foreach ($kelompokmapel as $item)
 
           <tr class="nilai">
             <td colspan="4"><strong>{{ $item->name }}</strong></td>
           </tr>
 
+          @php
+            $mapelId = \App\Models\Mapel::where('kelompok_mapel_id', $item->id)->pluck('id');
+          @endphp
+
+          @foreach($pembelajaran->whereIn('mapel_id', $mapelId) as $pemb)
+
             @php
-                $mapelId = \App\Models\Mapel::where('kelompok_mapel_id',$item->id)->pluck('id');
+              $no++;
+
+              $nilaiData = $siswa->nilaiAkhir
+                ->where('pembelajaran_id', $pemb->id)
+                ->first();
+
+              $nilai = $nilaiData->nilai ?? null;
+
+              if($nilai !== null){
+                $totalNilai += $nilai;
+                $jumlahMapel++;
+              }
             @endphp
-            <?php $no = 0; ?>
-            @foreach($pembelajaran->whereIn('mapel_id', $mapelId) as $i => $pemb)
-              <?php $no++; ?>
-              <tr class="nilai">
-                <td class="center">{{$no}}</td>
-                <td>{{ $pemb->mapel->name }}</td>
-                <td class="center">{{ $siswa->nilaiAkhir->where('pembelajaran_id', $pemb->id)->first()->nilai ?? '-'; }}</td>
-                <td>
-                  <span>{{ $siswa->nilaiAkhir->where('pembelajaran_id', $pemb->id)->first()->deskripsi_capaian_tinggi ?? null; }} </span>
-                  <span style="display: flex;">{{ $siswa->nilaiAkhir->where('pembelajaran_id', $pemb->id)->first()->deskripsi_capaian_rendah ?? null; }} </span>
-                </td>
-              </tr>
-            @endforeach
+
+            <tr class="nilai">
+              <td class="center">{{ $no }}</td>
+              <td>{{ $pemb->mapel->name }}</td>
+              <td class="center">{{ $nilai ?? '-' }}</td>
+              <td>
+                <span>{{ $nilaiData->deskripsi_capaian_tinggi ?? '' }}</span>
+                <span style="display: flex;">
+                  {{ $nilaiData->deskripsi_capaian_rendah ?? '' }}
+                </span>
+              </td>
+            </tr>
 
           @endforeach
-        @endif
 
-      </table>
+        @endforeach
+
+        {{-- TOTAL --}}
+        <tr class="nilai">
+          <td colspan="2"><strong>Total Nilai</strong></td>
+          <td class="center"><strong>{{ $totalNilai }}</strong></td>
+          <td></td>
+        </tr>
+
+        {{-- RATA-RATA --}}
+        <tr class="nilai">
+          <td colspan="2"><strong>Rata-rata</strong></td>
+          <td class="center">
+            <strong>
+              {{ $jumlahMapel > 0 ? number_format($totalNilai / $jumlahMapel, 2) : '-' }}
+            </strong>
+          </td>
+          <td></td>
+        </tr>
+
+      @endif
+
+    </table>
     </div>
     {{-- END CONTENT --}}
 
