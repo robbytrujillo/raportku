@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\File; // ⬅️ TAMBAHAN di atas
 
 class GuruController extends Controller
 {
@@ -63,6 +64,7 @@ class GuruController extends Controller
           'telepon' => 'nullable',
           'alamat' => 'nullable',
 
+          'ttd' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
           'email' => 'nullable|unique:users',
           'username' => 'required|unique:users',
           'password' => 'required',
@@ -78,7 +80,18 @@ class GuruController extends Controller
           ]);
 
           $request['user_id'] = $user->id;
-          Guru::create($request->except('username', 'password', 'email'));
+          // Guru::create($request->except('username', 'password', 'email'));
+
+          $data = $request->except('username', 'password', 'email');
+
+          // ✅ TAMBAHAN upload ttd
+          if ($request->hasFile('ttd')) {
+              $fileName = 'ttd_' . time() . '.' . $request->ttd->extension();
+              $request->ttd->move(public_path('img'), $fileName);
+              $data['ttd'] = $fileName;
+          }
+
+          Guru::create($data);
 
           DB::commit();
           return redirect(route('guru.index'))->withSuccess('Data berhasil ditambahkan!');
@@ -122,47 +135,71 @@ class GuruController extends Controller
      */
     public function update(Request $request, Guru $guru)
     {
-      $request->validate([
-        'name' => 'required',
-        'nip' => 'nullable',
-        'nuptk' => 'nullable',
-        'jk' => 'required',
-        'tempatlahir' => 'nullable',
-        'tanggallahir' => 'nullable',
-        'telepon' => 'nullable',
-        'alamat' => 'nullable',
+        $request->validate([
+            'name' => 'required',
+            'nip' => 'nullable',
+            'nuptk' => 'nullable',
+            'jk' => 'required',
+            'tempatlahir' => 'nullable',
+            'tanggallahir' => 'nullable',
+            'telepon' => 'nullable',
+            'alamat' => 'nullable',
 
-        'email' => 'nullable|unique:users,email,' . $guru->user_id,
-        'username' => 'required|unique:users,username,' . $guru->user_id,
-        'is_aktif' => 'required',
-      ]);
+            'email' => 'nullable|unique:users,email,' . $guru->user_id,
+            'username' => 'required|unique:users,username,' . $guru->user_id,
+            'is_aktif' => 'required',
 
-      try {
-        DB::beginTransaction();
-        if (filled($request->password)) {
-          $guru->user->update([
-            'username' => $request->username,
-            'email' => $request->email,
-            'is_aktif' => $request->is_aktif,
-            'password' => $request->password,
-          ]);
-        } else {
-          $guru->user->update([
-            'username' => $request->username,
-            'email' => $request->email,
-            'is_aktif' => $request->is_aktif,
-          ]);
+            // 🔥 validasi ttd
+            'ttd' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // ✅ UPDATE USER
+            if (filled($request->password)) {
+                $guru->user->update([
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'is_aktif' => $request->is_aktif,
+                    'password' => $request->password,
+                ]);
+            } else {
+                $guru->user->update([
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'is_aktif' => $request->is_aktif,
+                ]);
+            }
+
+            // ambil data selain user
+            $data = $request->except('username', 'password', 'email', 'is_aktif');
+
+            // ✅ HANDLE UPLOAD TTD
+            if ($request->hasFile('ttd')) {
+
+                // 🔥 HAPUS FILE LAMA
+                if ($guru->ttd && file_exists(public_path('img/' . $guru->ttd))) {
+                    unlink(public_path('img/' . $guru->ttd));
+                }
+
+                // 🔥 UPLOAD FILE BARU
+                $fileName = 'ttd_' . time() . '.' . $request->ttd->extension();
+                $request->ttd->move(public_path('img'), $fileName);
+
+                $data['ttd'] = $fileName;
+            }
+
+            // ✅ UPDATE DATA GURU
+            $guru->update($data);
+
+            DB::commit();
+
+            return redirect(route('guru.index'))->withSuccess('Data berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->withFailed('Terjadi kesalahan!');
         }
-
-        $guru->update($request->except('username', 'password', 'email', 'is_aktif'));
-        DB::commit();
-
-        return redirect(route('guru.index'))->withSuccess('Data berhasil diperbarui!');
-
-      } catch (\Exception $e) {
-          DB::rollBack();
-          return back()->withInput()->withFailed('Terjadi kesalahan!');
-      }
     }
 
     /**

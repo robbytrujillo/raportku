@@ -34,7 +34,7 @@
             </div>
           </div>
 
-          <form class="form-horizontal" action="{{ route('guru.update', $guru) }}" method="POST">
+          <form class="form-horizontal" action="{{ route('guru.update', $guru) }}" method="POST" enctype="multipart/form-data">
           @csrf
           @method('PUT')
 

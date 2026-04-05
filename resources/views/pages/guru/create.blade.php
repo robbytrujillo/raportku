@@ -34,7 +34,7 @@
             </div>
           </div>
 
-          <form class="form-horizontal" action="{{ route('guru.store') }}" method="POST">
+          <form class="form-horizontal" action="{{ route('guru.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
 
             <div class="card-body">

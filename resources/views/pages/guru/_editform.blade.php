@@ -79,6 +79,36 @@
       @error('email') <span class="invalid-feedback mt-1">{{ $message }}</span> @enderror
     </div>
   </div>
+
+  <div class="form-group row">
+    <label class="col-sm-3 col-form-label">Tanda Tangan</label>
+    <div class="col-sm-9">
+
+      {{-- Preview TTD lama --}}
+      @if($guru->ttd)
+        <img src="/img/{{ $guru->ttd }}" style="max-height:80px; margin-bottom:10px;">
+      @endif
+
+      {{-- Upload TTD baru --}}
+      <input 
+        type="file" 
+        name="ttd" 
+        class="form-control @error('ttd') is-invalid @enderror" 
+        accept="image/*"
+        onchange="previewTtdEdit(event)"
+      >
+
+      @error('ttd') 
+        <span class="invalid-feedback">{{ $message }}</span> 
+      @enderror
+
+      <small class="text-muted">Kosongkan jika tidak ingin mengubah</small>
+
+      {{-- Preview baru --}}
+      <img id="preview-ttd-edit" src="#" style="display:none; margin-top:10px; max-height:80px;">
+    </div>
+  </div>
+
   <div class="form-group row">
     <label for="username" class="col-sm-3 col-form-label">Username Akun @include('partials._wajib')</label>
     <div class="col-sm-9">
@@ -114,6 +144,24 @@
         y.classList.remove('text-primary');
         y.classList.remove('fa-eye');
       }
+    }
+  </script>
+
+  <script>
+    function previewTtdEdit(event) {
+        const input = event.target;
+        const preview = document.getElementById('preview-ttd-edit');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
     }
   </script>
 </div>

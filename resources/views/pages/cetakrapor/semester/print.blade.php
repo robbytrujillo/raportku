@@ -320,9 +320,10 @@ body {
     <br>
     <table style="width: 30%; border: 1px solid #000; margin-bottom: 20px;">
       <tr>
-        <td style="padding: 5px;">
+        <td style="padding: 4px;">
           <i>
-            Kriteria : A : 92 - 100 <br>
+            Kriteria : <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A : 92 - 100 <br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B : 83 - 91 <br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C : 76 - 82 <br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D : &lt; 76
@@ -356,16 +357,47 @@ body {
             @endif
 
             <b><u>{{$sekolah->namakepsek}}</u></b><br>
-            NIP. {{$sekolah->nipkepsek}}
+            {{--  NIP. {{$sekolah->nipkepsek}}  --}}
           </td>
           <td style="width: 35%;"></td>
 
-          <td style="width: 35%;">
-        {{$siswa->kelas->tapel->tempat ?? 'Tempat'}}, {{ Carbon::createFromFormat('Y-m-d', Str::before($siswa->kelas->tapel->tanggal, ' '))->locale('id')->isoFormat('D MMMM YYYY') ?? 'Tanggal'}}, <br>
+          {{--  <td style="width: 35%;">
+            {{$siswa->kelas->tapel->tempat ?? 'Tempat'}}, {{ Carbon::createFromFormat('Y-m-d', Str::before($siswa->kelas->tapel->tanggal, ' '))->locale('id')->isoFormat('D MMMM YYYY') ?? 'Tanggal'}}, <br>
             Wali Kelas, <br><br><br><br>
             <b><u>{{$siswa->kelas->guru ? $siswa->kelas->guru->name : ''}}</u></b><br>
             NIP. {{$siswa->kelas->guru ? $siswa->kelas->guru->nip : ''}}
+          </td>  --}}
+
+          <td style="width: 35%;">
+            {{$siswa->kelas->tapel->tempat ?? 'Tempat'}} 
+            {{ Carbon::createFromFormat('Y-m-d', Str::before($siswa->kelas->tapel->tanggal, ' '))->locale('id')->isoFormat('D MMMM YYYY') ?? 'Tanggal'}}, <br>
+            
+            Wali Kelas, <br>
+
+            {{-- ✅ TTD WALAS --}}
+            @if($siswa->kelas->guru && $siswa->kelas->guru->ttd)
+              @php
+                $path = public_path('img/'.$siswa->kelas->guru->ttd);
+                if(file_exists($path)){
+                  $type = pathinfo($path, PATHINFO_EXTENSION);
+                  $data = file_get_contents($path);
+                  $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                }
+              @endphp
+
+              @if(isset($base64))
+                <img src="{{ $base64 }}" width="80" height="70"><br>
+              @else
+                <br><br><br>
+              @endif
+            @else
+              <br><br><br>
+            @endif
+
+            <b><u>{{$siswa->kelas->guru ? $siswa->kelas->guru->name : ''}}</u></b><br>
+            {{--  NIP. {{$siswa->kelas->guru ? $siswa->kelas->guru->nip : ''}}  --}}
           </td>
+
         </tr>
         {{--  <tr>
           <td style="width: 30%;"></td>
