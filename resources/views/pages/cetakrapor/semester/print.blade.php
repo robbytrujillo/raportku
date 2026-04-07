@@ -26,9 +26,9 @@ body {
 }
 
 .kop-text-2 {
-  font-size: 22px; /* lebih besar */
+  font-size: 24px; /* lebih besar */
   font-weight: bold; /* lebih tebal */
-  letter-spacing: 1px; /* biar elegan */
+  letter-spacing: 0px; /* biar elegan */
   margin-bottom: 0px; /* JARAK KE BAWAH */
 }
 
