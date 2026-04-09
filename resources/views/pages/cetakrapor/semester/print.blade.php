@@ -29,6 +29,7 @@ body {
   font-size: 24px; /* lebih besar */
   font-weight: bold; /* lebih tebal */
   letter-spacing: 0px; /* biar elegan */
+  margin-top: 1px; /* JARAK KE ATAS */
   margin-bottom: 0px; /* JARAK KE BAWAH */
 }
 
@@ -66,7 +67,7 @@ body {
             <div class="kop-text-2">SMA IBNU HAJAR BOARDING SCHOOL</div>
             <div class="kop-text-3">
               Jl. Bungur II No. 77 RT.001 RW.007 Harjamukti Cimanggis Depok Jawa Barat<br>
-              Telp/Fax: (021) 87750036 &nbsp; Website: https://ihbs.sch.id &nbsp; Email: smaihbs@gmail.com
+              Telp/Fax: (021) 87750036 &nbsp; <span style="color: rgb(26, 105, 26)">Website: https://ihbs.sch.id &nbsp; Email: smaihbs@gmail.com</span>
             </div>
           </td>
         </tr>
