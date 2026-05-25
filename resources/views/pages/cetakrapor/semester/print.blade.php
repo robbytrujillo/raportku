@@ -81,7 +81,7 @@ body {
       <div class="" style="text-align: center">
         <h3><strong>LAPORAN BULANAN (PERIODE : {{ Str::upper(now()->format('F')) }}) <br>TAHUN PELAJARAN {{$siswa->kelas->tapel->tahun_pelajaran}}</strong></h3>
         {{--  <h3><strong><td>Tahun Pelajaran : {{$siswa->kelas->tapel->tahun_pelajaran}}</td></strong></h3>  --}}
-        <table style="width: 40%; margin-left: 0;">
+        <table style="width: 55%; margin-left: 0;">
         <tr class="">
           <td>Nama Siswa</td>
           <td>: {{$siswa->name}} </td>
